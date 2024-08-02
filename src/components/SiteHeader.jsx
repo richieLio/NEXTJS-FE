@@ -1,8 +1,8 @@
 import React from "react";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Link, Button } from "@nextui-org/react";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Button } from "@nextui-org/react";
 import { AcmeLogo } from "../asset/Logo";
 import { ThemeSwitcher } from "../../ThemeSwitcher";
-
+import Link from 'next/link';
 export default function Navibar() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
@@ -60,7 +60,7 @@ export default function Navibar() {
           <ThemeSwitcher />
         </NavbarItem>
         <NavbarItem className="hidden md:flex">
-          <Link href="#">Login</Link>
+          <Link href="/login">Login</Link>
         </NavbarItem>
         <NavbarItem>
           <Button as={Link} color="primary" href="#" variant="flat">
