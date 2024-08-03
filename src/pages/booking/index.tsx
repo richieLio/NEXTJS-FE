@@ -1,23 +1,25 @@
-import { Button } from "@nextui-org/button";
-import { motion } from "framer-motion";
-import React, { useRef } from "react";
-import { useDisclosure, Link } from "@nextui-org/react";
-import { useScroll, useSpring, useTransform } from "framer-motion";
-
+import React, { useState, useContext, useEffect } from "react";
+import { toast } from "react-toastify";
+import { UserContext } from "../../components/UserContext";
+import { useRouter } from "next/router";
 
 
 
 export default function Home() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  
+  const router = useRouter();
+  const context = useContext(UserContext);
+  
+  if (!context) {
+    throw new Error("UserContext must be used within a UserProvider");
+  }
+  const { user, loginContext } = context;
 
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
-
-
+  useEffect(() => {
+    if (!user || !user.userId) {
+      router.push("/login");
+    }
+  }, [user, router]);
   
 
   return (

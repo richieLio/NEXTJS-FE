@@ -12,10 +12,12 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "target": "es5",
+    "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src"],
   "exclude": ["node_modules"]
 }

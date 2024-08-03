@@ -1,11 +1,31 @@
-import React from "react";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Button } from "@nextui-org/react";
+import React, { useState, useContext } from "react";
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  NavbarMenuToggle,
+  NavbarMenu,
+  NavbarMenuItem,
+  Button,
+} from "@nextui-org/react";
 import { AcmeLogo } from "../asset/Logo";
 import { ThemeSwitcher } from "../../ThemeSwitcher";
-import Link from 'next/link';
-export default function Navibar() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { UserContext } from "./UserContext";
+import { toast } from "react-toastify";
 
+export default function Navibar() {
+  const router = useRouter();
+  const context = useContext(UserContext);
+
+  if (!context) {
+    throw new Error("UserContext must be used within a UserProvider");
+  }
+
+  const { user, logout } = context;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuItems = [
     { name: "Home", href: "/home" },
     { name: "Booking", href: "/booking" },
@@ -15,6 +35,14 @@ export default function Navibar() {
     { name: "Log Out", href: "/logout" },
   ];
 
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    logout();
+    router.push("/");
+    toast.success("Logout success");
+
+  };
+
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen}>
       <NavbarContent>
@@ -23,7 +51,9 @@ export default function Navibar() {
           className="sm:hidden"
         />
         <NavbarBrand>
-          <Link href="/home" className="font-bold text-inherit"><AcmeLogo /></Link>
+          <Link href="/home" className="font-bold text-inherit">
+            <AcmeLogo />
+          </Link>
         </NavbarBrand>
       </NavbarContent>
 
@@ -54,27 +84,41 @@ export default function Navibar() {
           </Link>
         </NavbarItem>
       </NavbarContent>
-      
+
       <NavbarContent justify="end">
         <NavbarItem>
           <ThemeSwitcher />
         </NavbarItem>
-        <NavbarItem className="hidden md:flex">
-          <Link href="/login">Login</Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            Sign Up
-          </Button>
-        </NavbarItem>
+        {user && user.userId ? (
+          <NavbarItem className="hidden md:flex">
+            <Button color="primary" onClick={handleLogout}>
+              Logout
+            </Button>
+          </NavbarItem>
+        ) : (
+          <>
+            <NavbarItem className="hidden md:flex">
+              <Link href="/login">Login</Link>
+            </NavbarItem>
+            <NavbarItem>
+              <Button as={Link} color="primary" href="/register" variant="flat">
+                Sign Up
+              </Button>
+            </NavbarItem>
+          </>
+        )}
       </NavbarContent>
-      
+
       <NavbarMenu>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item.name}-${index}`}>
             <Link
               color={
-                index === 0 ? "primary" : index === menuItems.length - 1 ? "danger" : "foreground"
+                index === 0
+                  ? "primary"
+                  : index === menuItems.length - 1
+                  ? "danger"
+                  : "foreground"
               }
               className="w-full"
               href={item.href}
