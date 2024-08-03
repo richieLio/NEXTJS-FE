@@ -32,7 +32,6 @@ export default function Navibar() {
     { name: "History", href: "/history" },
     { name: "Live Chat", href: "/livechats" },
     { name: "Help", href: "/help" },
-    { name: "Log Out", href: "/logout" },
   ];
 
   const handleLogout = (e: React.MouseEvent) => {
@@ -90,14 +89,14 @@ export default function Navibar() {
           <ThemeSwitcher />
         </NavbarItem>
         {user && user.userId ? (
-          <NavbarItem className="hidden md:flex">
+          <NavbarItem>
             <Button color="primary" onClick={handleLogout}>
               Logout
             </Button>
           </NavbarItem>
         ) : (
           <>
-            <NavbarItem className="hidden md:flex">
+            <NavbarItem>
               <Link href="/login">Login</Link>
             </NavbarItem>
             <NavbarItem>
