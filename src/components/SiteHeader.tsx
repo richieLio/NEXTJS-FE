@@ -39,7 +39,7 @@ export default function Navibar() {
     <Navbar>
       <NavbarContent>
         <NavbarBrand>
-          <Link href="/home" className="font-bold text-inherit">
+          <Link href="/" className="font-bold text-inherit">
             <AcmeLogo />
           </Link>
         </NavbarBrand>
@@ -47,7 +47,7 @@ export default function Navibar() {
 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem isActive>
-          <Link href="/home" aria-current="page">
+          <Link href="/" aria-current="page">
             Home
           </Link>
         </NavbarItem>

@@ -8,12 +8,14 @@ import {
   Input,
   Button,
   Select,
+  Avatar,
+  SelectItem,
 } from "@nextui-org/react";
 import { toast } from "react-toastify";
 import Loading from "../../components/Loading";
 
 const Profile = () => {
-  const [user, setUser] = useState<any>(null); // Use a more specific type if you have one
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -26,12 +28,18 @@ const Profile = () => {
     gender: "",
     phone: "",
   });
+  const genders = [
+    { key: "Male", label: "Male" },
+    { key: "Female", label: "Female" },
+    { key: "Others", label: "Others" },
+  ];
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const response = await userProfile();
         if (response.code === 200) {
+          const dob = response.data.dob ? new Date(response.data.dob) : null;
           setUser(response.data);
           setFormData({
             userId: response.data.id,
@@ -39,9 +47,7 @@ const Profile = () => {
             phone: response.data.phoneNumber,
             address: response.data.address,
             gender: response.data.gender,
-            dob: response.data.dob
-              ? new Date(response.data.dob).toISOString().split("T")[0]
-              : "", // Ensure the date is in YYYY-MM-DD format
+            dob: dob ? new Date(dob.getTime() - dob.getTimezoneOffset() * 60000).toISOString().split("T")[0] : "",
             fullName: response.data.fullName,
           });
         } else {
@@ -58,15 +64,6 @@ const Profile = () => {
 
     fetchUserProfile();
   }, []);
-  
-  useEffect(() => {
-    if (user) {
-      setFormData((prevData) => ({
-        ...prevData,
-        dob: user.dob ? new Date(user.dob).toISOString().split("T")[0] : "",
-      }));
-    }
-  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -151,15 +148,19 @@ const Profile = () => {
                 onChange={handleInputChange}
                 className="mb-4"
               />
-              <Input
-                fullWidth
+              <Select
+                variant="flat"
                 label="Gender"
                 name="gender"
-                type="text"
-                value={formData.gender}
-                onChange={handleInputChange}
                 className="mb-4"
-              />
+                value={formData.gender}
+                defaultSelectedKeys={[formData.gender]}
+                onChange={handleInputChange} 
+              >
+                {genders.map((gender) => (
+                  <SelectItem key={gender.key}>{gender.label}</SelectItem>
+                ))}
+              </Select>
               <Input
                 fullWidth
                 label="Phone"
@@ -172,27 +173,43 @@ const Profile = () => {
             </>
           ) : (
             <>
-              <h3 className="text-xl font-semibold">Full Name</h3>
-              <p className="text-lg">{user?.fullName || "N/A"}</p>
-              <Spacer y={1} />
-              <h3 className="text-xl font-semibold">Email</h3>
-              <p className="text-lg">{user?.email || "N/A"}</p>
-              <Spacer y={1} />
-              <h3 className="text-xl font-semibold">Address</h3>
-              <p className="text-lg">{user?.address || "N/A"}</p>
-              <Spacer y={1} />
-              <h3 className="text-xl font-semibold">Date of Birth</h3>
-              <p className="text-lg">
-                {user?.dob ? new Date(user.dob).toLocaleDateString() : "N/A"}
-              </p>
-              <Spacer y={1} />
-              <h3 className="text-xl font-semibold">Gender</h3>
-              <p className="text-lg">{user?.gender || "N/A"}</p>
-              <Spacer y={1} />
-              <h3 className="text-xl font-semibold">Phone</h3>
-              <p className="text-lg">{user?.phoneNumber || "N/A"}</p>
-              <Spacer y={1} />
-              <Button onClick={() => setEditing(true)}>Edit</Button>
+              <CardHeader className="justify-between">
+                <div className="flex gap-5">
+                  <Avatar
+                    isBordered
+                    radius="full"
+                    size="md"
+                    src="https://nextui.org/avatars/avatar-1.png"
+                  />
+                  <div className="flex flex-col gap-1 items-start justify-center">
+                    <h4 className="text-small font-semibold leading-none text-default-600">
+                      {user?.fullName || "N/A"}
+                    </h4>
+                    <h5 className="text-small tracking-tight text-default-400">
+                      {user?.id || "N/A"}
+                    </h5>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardBody className="px-3 py-0 text-small text-default-400">
+                <p>Email: {user?.email || "N/A"}</p>
+                <p>Address: {user?.address || "N/A"}</p>
+                <p>
+                  Date of Birth:{" "}
+                  {user?.dob ? new Date(user.dob).toLocaleDateString() : "N/A"}
+                </p>
+                <p>Gender: {user?.gender || "N/A"}</p>
+                <p>Phone: {user?.phoneNumber || "N/A"}</p>
+                <span className="pt-2">
+                  #Click edit button for updating your information
+                  <span className="py-2" aria-label="computer" role="img">
+                    💻
+                  </span>
+                </span>
+              </CardBody>
+              <Button className="mt-5" onClick={() => setEditing(true)}>
+                Edit
+              </Button>
             </>
           )}
         </CardBody>
