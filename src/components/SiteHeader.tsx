@@ -10,6 +10,9 @@ import {
   Dropdown,
   DropdownMenu,
   Avatar,
+  NavbarMenu,
+  NavbarMenuItem,
+  NavbarMenuToggle
 } from "@nextui-org/react";
 import { AcmeLogo } from "../asset/Logo";
 import { ThemeSwitcher } from "../../ThemeSwitcher";
@@ -19,6 +22,8 @@ import { UserContext } from "./UserContext";
 import { toast } from "react-toastify";
 
 export default function Navibar() {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
   const router = useRouter();
   const context = useContext(UserContext);
 
@@ -34,10 +39,21 @@ export default function Navibar() {
     router.push("/");
     toast.success("Logout success");
   };
+  const menuItems = [
+    { name: "Home", href: "/home" },
+    { name: "Booking", href: "/booking" },
+    { name: "Live Chat", href: "/livechat" },
+    { name: "History", href: "/history" },
+    { name: "Help", href: "/help" },
+  ];
 
   return (
-    <Navbar>
+    <Navbar onMenuOpenChange={setIsMenuOpen}>
       <NavbarContent>
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          className="sm:hidden"
+        />
         <NavbarBrand>
           <Link href="/" className="font-bold text-inherit">
             <AcmeLogo />
@@ -57,7 +73,7 @@ export default function Navibar() {
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link href="/livechats" color="foreground">
+          <Link href="/livechat" color="foreground">
             Live Chat
           </Link>
         </NavbarItem>
@@ -92,9 +108,13 @@ export default function Navibar() {
               <DropdownMenu aria-label="Profile Actions" variant="flat">
                 <DropdownItem key="profile" className="h-14 gap-2">
                   <p className="font-semibold">Signed in as</p>
-                  <Link href="/profile" className="font-semibold">{user.email}</Link>
+                  <Link href="/profile" className="font-semibold">
+                    {user.email}
+                  </Link>
                 </DropdownItem>
-                <DropdownItem as={Link} href="/profile">Profile</DropdownItem>
+                <DropdownItem as={Link} href="/profile">
+                  Profile
+                </DropdownItem>
                 <DropdownItem key="team_settings">Team Settings</DropdownItem>
                 <DropdownItem key="analytics">Analytics</DropdownItem>
                 <DropdownItem key="system">System</DropdownItem>
@@ -126,6 +146,26 @@ export default function Navibar() {
           </>
         )}
       </NavbarContent>
+      <NavbarMenu>
+        {menuItems.map((item, index) => (
+          <NavbarMenuItem key={`${item.name}-${index}`}>
+            <Link
+              color={
+                index === 0
+                  ? "primary"
+                  : index === menuItems.length - 1
+                  ? "danger"
+                  : "foreground"
+              }
+              className="w-full"
+              href={item.href}
+              size="lg"
+            >
+              {item.name}
+            </Link>
+          </NavbarMenuItem>
+        ))}
+      </NavbarMenu>
     </Navbar>
   );
 }
