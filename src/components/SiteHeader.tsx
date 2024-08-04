@@ -4,10 +4,12 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  NavbarMenuToggle,
-  NavbarMenu,
-  NavbarMenuItem,
   Button,
+  DropdownItem,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  Avatar,
 } from "@nextui-org/react";
 import { AcmeLogo } from "../asset/Logo";
 import { ThemeSwitcher } from "../../ThemeSwitcher";
@@ -25,30 +27,17 @@ export default function Navibar() {
   }
 
   const { user, logout } = context;
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuItems = [
-    { name: "Home", href: "/home" },
-    { name: "Booking", href: "/booking" },
-    { name: "History", href: "/history" },
-    { name: "Live Chat", href: "/livechats" },
-    { name: "Help", href: "/help" },
-  ];
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
     logout();
     router.push("/");
     toast.success("Logout success");
-
   };
 
   return (
-    <Navbar onMenuOpenChange={setIsMenuOpen}>
+    <Navbar>
       <NavbarContent>
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          className="sm:hidden"
-        />
         <NavbarBrand>
           <Link href="/home" className="font-bold text-inherit">
             <AcmeLogo />
@@ -85,17 +74,47 @@ export default function Navibar() {
       </NavbarContent>
 
       <NavbarContent justify="end">
-        <NavbarItem>
-          <ThemeSwitcher />
-        </NavbarItem>
         {user && user.userId ? (
-          <NavbarItem>
-            <Button color="primary" onClick={handleLogout}>
-              Logout
-            </Button>
-          </NavbarItem>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <ThemeSwitcher />
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <Avatar
+                  isBordered
+                  as="button"
+                  className="transition-transform"
+                  color="secondary"
+                  name="Jason Hughes"
+                  size="sm"
+                  src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+                />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Profile Actions" variant="flat">
+                <DropdownItem key="profile" className="h-14 gap-2">
+                  <p className="font-semibold">Signed in as</p>
+                  <Link href="/profile" className="font-semibold">{user.email}</Link>
+                </DropdownItem>
+                <DropdownItem as={Link} href="/profile">Profile</DropdownItem>
+                <DropdownItem key="team_settings">Team Settings</DropdownItem>
+                <DropdownItem key="analytics">Analytics</DropdownItem>
+                <DropdownItem key="system">System</DropdownItem>
+                <DropdownItem key="configurations">Configurations</DropdownItem>
+                <DropdownItem key="help_and_feedback">
+                  Help & Feedback
+                </DropdownItem>
+                <DropdownItem
+                  key="logout"
+                  color="danger"
+                  onClick={handleLogout}
+                >
+                  Log Out
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
         ) : (
           <>
+            <ThemeSwitcher />
             <NavbarItem>
               <Link href="/login">Login</Link>
             </NavbarItem>
@@ -107,27 +126,6 @@ export default function Navibar() {
           </>
         )}
       </NavbarContent>
-
-      <NavbarMenu>
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item.name}-${index}`}>
-            <Link
-              color={
-                index === 0
-                  ? "primary"
-                  : index === menuItems.length - 1
-                  ? "danger"
-                  : "foreground"
-              }
-              className="w-full"
-              href={item.href}
-              size="lg"
-            >
-              {item.name}
-            </Link>
-          </NavbarMenuItem>
-        ))}
-      </NavbarMenu>
     </Navbar>
   );
 }

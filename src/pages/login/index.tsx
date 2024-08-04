@@ -111,7 +111,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <svg
-                className="bi bi-eye-fill absolute top-1/2 right-4 translate-y-1/2 cursor-pointer"
+                className="bi bi-eye-fill absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer"
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
                 height="16"
@@ -141,7 +141,7 @@ export default function Login() {
           </button>
 
           <p className="mt-5 text-xs border-b border-gray-400 py-4">
-            <a href="#">Forgot Your password?</a>
+            <Link href="/recover/initiate">Forgot Your password?</Link>
           </p>
 
           <div className="mt-3 text-xs flex justify-between items-center">

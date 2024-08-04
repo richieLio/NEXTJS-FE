@@ -63,7 +63,7 @@ const register = async (
     throw error;
   }
 };
-const userProfile = async (userId: string) => {
+const userProfile = async () => {
   try {
     const response = await axiosInstance.get("/user/profile");
     return response;
