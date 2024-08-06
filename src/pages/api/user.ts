@@ -78,6 +78,23 @@ const userProfile = async () => {
     throw error;
   }
 };
+const avtChat = async (userId: string) => {
+  try {
+    const response = await axiosInstance.get("/user/user-profile", {
+      params: { userId },
+    });
+    return response;
+  } catch (error) {
+    const res: ErrorResponse = {};
+    if (axios.isAxiosError(error) && error.response) {
+      res.data = error.response.data;
+      res.status = error.response.status;
+      res.headers = error.response.headers;
+    }
+    console.error("UserProfile error:", res);
+    throw error;
+  }
+};
 
 const sendOtp = async (email: string) => {
   try {
@@ -140,7 +157,8 @@ const putUpdateProfile = async (
   address: string,
   gender: string,
   dob: string,
-  fullName: string
+  fullName: string,
+  avatarUrl: string
 ) => {
   return await axiosInstance.put(`/user/update-profile`, {
     id,
@@ -150,6 +168,7 @@ const putUpdateProfile = async (
     gender,
     dob,
     fullName,
+    avatarUrl
   });
 };
 
@@ -224,4 +243,5 @@ export {
   changePassword,
   fbLogin,
   ggLogin,
+  avtChat
 };

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Navbar,
   NavbarBrand,
@@ -12,20 +12,38 @@ import {
   Avatar,
   NavbarMenu,
   NavbarMenuItem,
-  NavbarMenuToggle
+  NavbarMenuToggle,
 } from "@nextui-org/react";
 import { AcmeLogo } from "../asset/Logo";
-import { ThemeSwitcher } from "../../ThemeSwitcher";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { UserContext } from "./UserContext";
 import { toast } from "react-toastify";
+import { userProfile } from "@/pages/api/user";
 
 export default function Navibar() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [avt, setAvt] = useState<string | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const router = useRouter();
   const context = useContext(UserContext);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await userProfile();
+        if (response.code === 200) {
+          setAvt(response.data.avatarUrl);
+        } else {
+          toast.error("Failed to fetch user profile");
+        }
+      } catch (error) {
+        toast.error("An error occurred during fetch user profile");
+      }
+    };
+    fetchUserProfile();
+  }, []); // Empty dependency array to run effect only once
 
   if (!context) {
     throw new Error("UserContext must be used within a UserProvider");
@@ -39,6 +57,7 @@ export default function Navibar() {
     router.push("/");
     toast.success("Logout success");
   };
+
   const menuItems = [
     { name: "Home", href: "/home" },
     { name: "Booking", href: "/booking" },
@@ -101,7 +120,7 @@ export default function Navibar() {
                   className="transition-transform"
                   size="sm"
                   showFallback
-                  src='https://images.unsplash.com/broken'
+                  src={avt || "https://images.unsplash.com/broken"}
                 />
               </DropdownTrigger>
               <DropdownMenu aria-label="Profile Actions" variant="flat">

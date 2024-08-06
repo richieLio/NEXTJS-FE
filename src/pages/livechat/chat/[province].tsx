@@ -8,7 +8,7 @@ import React, {
 import { io, Socket } from "socket.io-client";
 import { Button, Input, Avatar } from "@nextui-org/react";
 import { useRouter } from "next/router";
-import { db } from "../../../../firebaseConfig"; // Import Firestore
+import { db } from "@/lib/firebase/firebaseConfig"; // Import Firestore
 import {
   collection,
   addDoc,
@@ -19,6 +19,8 @@ import {
   DocumentData,
 } from "firebase/firestore"; // Import Firestore functions
 import { UserContext } from "../../../components/UserContext";
+import { avtChat } from "@/pages/api/user";
+import { toast } from "react-toastify";
 
 const socket: Socket = io("http://localhost:4000"); // Corrected address of the server
 
@@ -37,7 +39,7 @@ const Chat: React.FC = () => {
   if (!context) {
     throw new Error("UserContext is not available");
   }
-
+  const [avt, setAvt] = useState<{ [key: string]: string }>({});
   const { user } = context;
   const router = useRouter();
   const { province } = router.query;
@@ -45,7 +47,35 @@ const Chat: React.FC = () => {
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  // Function to fetch avatar URL based on userId
+  const fetchAvatar = async (userId: string) => {
+    try {
+      if (!avt[userId]) {
+        // If the avatar is not already fetched
+        const response = await avtChat(userId);
+        console.log("id check >>> " + userId);
+        if (response.code === 200) {
+          setAvt((prevAvt) => ({
+            ...prevAvt,
+            [userId]: response.data.avatarUrl,
+          }));
+        } else {
+          toast.error("Failed to fetch user profile");
+        }
+      }
+    } catch (error) {
+      toast.error("An error occurred during fetch user profile");
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
+    const uniqueUserIds = Array.from(
+      new Set(messages.map((msg) => msg.userId))
+    );
+
+    uniqueUserIds.forEach((userId) => fetchAvatar(userId));
+  }, [messages]);
   useEffect(() => {
     if (!province) return; // Ensure province is available
 
@@ -149,10 +179,10 @@ const Chat: React.FC = () => {
                 isBordered
                 radius="full"
                 showFallback
-                src="https://images.unsplash.com/broken"
-                className={`w-10 h-10 mr-2 ${msg.name === user.fullName ? "ml-2" : ""} ${
-                  msg.name === user.fullName ? "ml-2" : "mr-2"
-                }`}
+                src={avt[msg.userId] || "https://images.unsplash.com/broken"}
+                className={`w-10 h-10 mr-2 ${
+                  msg.name === user.fullName ? "ml-2" : ""
+                } ${msg.name === user.fullName ? "ml-2" : "mr-2"}`}
               />
               <div
                 className={`flex flex-col ${
@@ -171,7 +201,7 @@ const Chat: React.FC = () => {
                     msg.userId === user.userId ? "primary" : "white"
                   } p-2 rounded-lg text-sm ${
                     msg.userId === user.userId ? "text-white" : "text-gray-800"
-                  } max-w-[50%] break-words shadow-md ${
+                  } max-w-[80%] break-words shadow-md ${
                     msg.userId === user.userId ? "ml-auto" : "mr-auto"
                   }`}
                 >
@@ -193,10 +223,7 @@ const Chat: React.FC = () => {
         </ul>
       </div>
       <div className="mt-auto">
-        <form
-          onSubmit={sendMessage}
-          className="flex w-full"
-        >
+        <form onSubmit={sendMessage} className="flex w-full">
           <Input
             type="text"
             value={message}

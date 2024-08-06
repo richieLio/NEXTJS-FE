@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { userProfile, putUpdateProfile } from "../api/user";
 import {
   Card,
@@ -8,18 +8,19 @@ import {
   Input,
   Button,
   Select,
-  Avatar,
   SelectItem,
+  Avatar,
 } from "@nextui-org/react";
 import { toast } from "react-toastify";
 import Loading from "../../components/Loading";
+import AvatarInput from "@/components/AvatarInput";
 
 const Profile = () => {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({
+  const [user, setUser] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [editing, setEditing] = React.useState(false);
+  const [formData, setFormData] = React.useState({
     userId: "",
     fullName: "",
     email: "",
@@ -27,14 +28,16 @@ const Profile = () => {
     dob: "",
     gender: "",
     phone: "",
+    avatarUrl: "",
   });
+
   const genders = [
     { key: "Male", label: "Male" },
     { key: "Female", label: "Female" },
     { key: "Others", label: "Others" },
   ];
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const response = await userProfile();
@@ -47,8 +50,13 @@ const Profile = () => {
             phone: response.data.phoneNumber,
             address: response.data.address,
             gender: response.data.gender,
-            dob: dob ? new Date(dob.getTime() - dob.getTimezoneOffset() * 60000).toISOString().split("T")[0] : "",
+            dob: dob
+              ? new Date(dob.getTime() - dob.getTimezoneOffset() * 60000)
+                  .toISOString()
+                  .split("T")[0]
+              : "",
             fullName: response.data.fullName,
+            avatarUrl: response.data.avatarUrl,
           });
         } else {
           toast.error("Failed to fetch user profile");
@@ -70,6 +78,10 @@ const Profile = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  const handleAvatarUrlChange = (url: string) => {
+    setFormData((prevData) => ({ ...prevData, avatarUrl: url }));
+  };
+
   const handleSave = async () => {
     try {
       const response = await putUpdateProfile(
@@ -79,7 +91,8 @@ const Profile = () => {
         formData.address,
         formData.gender,
         formData.dob,
-        formData.fullName
+        formData.fullName,
+        formData.avatarUrl
       );
       if (response.code === 200) {
         toast.success("Profile updated successfully");
@@ -92,6 +105,7 @@ const Profile = () => {
       toast.error("An error occurred during profile update");
     }
   };
+
 
   if (loading) {
     return <Loading />;
@@ -115,6 +129,11 @@ const Profile = () => {
           <Spacer y={1} />
           {editing ? (
             <>
+              <AvatarInput
+                userId={formData.userId}
+                avatarUrl={formData.avatarUrl}
+                onAvatarUrlChange={handleAvatarUrlChange}
+              />
               <Input
                 fullWidth
                 label="Full Name"
@@ -169,6 +188,7 @@ const Profile = () => {
                 onChange={handleInputChange}
                 className="mb-4"
               />
+
               <Button onClick={handleSave}>Save</Button>
             </>
           ) : (
@@ -179,7 +199,10 @@ const Profile = () => {
                     isBordered
                     radius="full"
                     size="md"
-                    src="https://nextui.org/avatars/avatar-1.png"
+                    src={
+                      formData.avatarUrl ||
+                      "https://nextui.org/avatars/avatar-1.png"
+                    }
                   />
                   <div className="flex flex-col gap-1 items-start justify-center">
                     <h4 className="text-small font-semibold leading-none text-default-600">

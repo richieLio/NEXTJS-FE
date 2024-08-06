@@ -20,7 +20,7 @@ app.prepare().then(() => {
   });
 
   const corsOptions = {
-    origin: ["http://localhost:9999", "https://ssbooking.netlify.app", "https://localhost:7183/"],
+    origin: ["http://localhost:9999", "https://ssbooking.netlify.app", "https://localhost:7183"],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
     credentials: true
