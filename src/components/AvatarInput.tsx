@@ -76,7 +76,7 @@ const AvatarInput: React.FC<AvatarInputProps> = ({ userId, avatarUrl, onAvatarUr
       </label>
       {isUploading && (
         <div className="mt-2">
-          <Progress value={progressUpload} />
+          <Progress value={progressUpload} className="bg-primary-100" />
           <p>Uploading {Math.round(progressUpload)}%</p>
         </div>
       )}

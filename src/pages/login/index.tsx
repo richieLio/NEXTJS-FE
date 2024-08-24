@@ -1,12 +1,15 @@
 import React, { useState, useContext, useEffect } from "react";
 import googleImg from "@/asset/google_logo_icon.png";
-import loginImg from "@/asset/login.jpeg";
 import Image from "next/image";
-import { loginApi } from "../api/user"; // Adjust the import path as needed
+import { loginApi } from "../api/user";
 import { toast } from "react-toastify";
 import { UserContext } from "../../components/UserContext";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import LoadingButton from "@/components/ui/button";
 
 export default function Login() {
   const router = useRouter();
@@ -21,6 +24,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -48,6 +52,7 @@ export default function Login() {
       return;
     }
     setError(""); // Clear any previous error messages
+    setIsLoading(true);
     try {
       const response = await loginApi(email, password);
       const { user: loggedInUser, token } = response.data;
@@ -64,6 +69,8 @@ export default function Login() {
       console.error("Login error", error);
       setError("An error occurred during login");
       toast.error("An error occurred during login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -80,92 +87,88 @@ export default function Login() {
   }
 
   return (
-    <section className="flex items-center justify-center">
-      <div className="bg-[#7ad3f62a] flex rounded-2xl shadow-lg w-full sm:w-[90%] lg:w-[70%] xl:w-[60%]">
-        {/* Form */}
-        <div className="w-full sm:w-1/2 p-8">
-          <h2 className="font-bold text-2xl text-[#4527a5] text-center">
-            Login
-          </h2>
-          <p className="text-sm mt-7 text-[#6c57b1] text-opacity-70 text-center">
-            If you are already a member, easily log in
-          </p>
+    <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-Input bg-[#7ad3f62a]">
+      {/* Form */}
 
-          {/* Data entry group */}
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-            <input
-              className="p-2 mt-8 rounded-xl border"
-              type="text"
-              name="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <div className="relative">
-              <input
-                className="p-2 mt-2 rounded-xl border w-full"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <svg
-                className="bi bi-eye-fill absolute top-1/2 right-4 transform -translate-y-1/2 cursor-pointer"
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="gray"
-                viewBox="0 0 16 16"
-                onClick={togglePasswordVisibility}
-              >
-                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
-                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
-              </svg>
-            </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-            <button className="bg-purple-700 hover:bg-purple-800 text-white rounded-xl py-2 transition-colors mt-5">
-              Login
-            </button>
-          </form>
+      <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
+        Login
+      </h2>
+      <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
+        If you are already a member, easily log in
+      </p>
 
-          <div className="mt-10 grid grid-cols-3 items-center text-gray-400">
-            <hr className="border-gray-400" />
-            <p className="text-center text-sm">OR</p>
-            <hr className="border-gray-400" />
-          </div>
-
-          <button className="py-2 w-full rounded-xl mt-5 flex justify-center text-sm">
-            <Image className="w-6 mr-3" src={googleImg} alt="google logo" />
-            Login with Google
-          </button>
-
-          <p className="mt-5 text-xs border-b border-gray-400 py-4">
-            <Link href="/recover/initiate">Forgot Your password?</Link>
-          </p>
-
-          <div className="mt-3 text-xs flex justify-between items-center">
-            <p>
-              <Link href="/register">If you don't have an account?</Link>
-            </p>
-            <button
-              className="py-2 px-5 border rounded-xl"
-              onClick={() => router.push("/register")}
-            >
-              Register
-            </button>
-          </div>
-        </div>
-
-        {/* Image */}
-        <div className="hidden sm:block w-full sm:w-1/2 flex items-center justify-center">
-          <Image
-            className="w-full h-full object-cover rounded-2xl"
-            src={loginImg}
-            alt="login image"
+      {/* Data entry group */}
+      <form className="my-8" onSubmit={handleSubmit}>
+        <div className="flex flex-col space-y-2 w-full mb-4">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            type="text"
+            name="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
+        <div className="relative">
+          <div className="flex flex-col space-y-2 w-full mb-4">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <svg
+            className="bi bi-eye-fill absolute top-1/2 right-4 translate-y-1/2 cursor-pointer "
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="gray"
+            viewBox="0 0 16 16"
+            onClick={togglePasswordVisibility}
+          >
+            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+          </svg>
+        </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <LoadingButton
+          type="submit"
+          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+          isLoading={isLoading}
+        >
+          Login
+        </LoadingButton>
+      </form>
+
+      <div className="mt-10 grid grid-cols-3 items-center text-gray-400">
+        <hr className="border-gray-400" />
+        <p className="text-center text-sm">OR</p>
+        <hr className="border-gray-400" />
       </div>
-    </section>
+
+      <button className="py-2 w-full rounded-xl mt-5 flex justify-center text-sm">
+        <Image className="w-6 mr-3" src={googleImg} alt="google logo" />
+        Login with Google
+      </button>
+
+      <p className="mt-5 text-xs border-b border-gray-400 py-4">
+        <Link href="/recover/initiate">Forgot Your password?</Link>
+      </p>
+
+      <div className="mt-3 text-xs flex justify-between items-center">
+        <p>
+          <Link href="/register">If you don't have an account?</Link>
+        </p>
+        <button
+          className="py-2 px-5 border rounded-xl"
+          onClick={() => router.push("/register")}
+        >
+          Register
+        </button>
+      </div>
+    </div>
   );
 }
