@@ -8,11 +8,9 @@ const LiveStreamPage = () => {
   const [peerInstance, setPeerInstance] = useState<Peer | null>(null);
   const [myUniqueId, setMyUniqueId] = useState<string>("");
 
-    useEffect(() => {
+  useEffect(() => {
     const id = router.query.id as string;
-    if (id) {
-      setMyUniqueId(id);
-    }
+    if (id) setMyUniqueId(id);
   }, [router.query.id]);
 
   useEffect(() => {
@@ -20,9 +18,10 @@ const LiveStreamPage = () => {
       let peer: Peer;
       if (typeof window !== 'undefined') {
         peer = new Peer(myUniqueId, {
-          host: 'localhost',
-          port: 9000,
+          host: window.location.hostname,
+          port: parseInt(process.env.NEXT_PUBLIC_PEER_PORT || '4000'),
           path: '/myapp',
+          secure: process.env.NODE_ENV === 'production',
         });
 
         setPeerInstance(peer);
@@ -34,23 +33,22 @@ const LiveStreamPage = () => {
           if (myVideoRef.current) {
             myVideoRef.current.srcObject = stream;
           }
-
           peer.on('call', call => {
             call.answer(stream);
           });
+        }).catch(error => {
+          console.error("Error accessing media devices.", error);
         });
       }
       return () => {
-        if (peer) {
-          peer.destroy();
-        }
+        if (peer) peer.destroy();
       };
     }
   }, [myUniqueId]);
 
   return (
     <div className='flex flex-col justify-center items-center p-12'>
-      <p>your id : {myUniqueId}</p>
+      <p>Your ID: {myUniqueId}</p>
       <video className='w-72' playsInline ref={myVideoRef} autoPlay />
     </div>
   );
