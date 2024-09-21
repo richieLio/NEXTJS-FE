@@ -14,7 +14,7 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle,
 } from "@nextui-org/react";
-import { AcmeLogo } from "../asset/Logo";
+import { AcmeLogo } from "../../public/asset/Logo";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import Link from "next/link";
 import { useRouter } from "next/router";

@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-import googleImg from "@/asset/google_logo_icon.png";
 import Image from "next/image";
 import { loginApi } from "../api/user";
 import { toast } from "react-toastify";
@@ -150,7 +149,7 @@ export default function Login() {
       </div>
 
       <button className="py-2 w-full rounded-xl mt-5 flex justify-center text-sm">
-        <Image className="w-6 mr-3" src={googleImg} alt="google logo" />
+        <img className="w-6 mr-3" src="asset/google_logo_icon.png" alt="google logo" />
         Login with Google
       </button>
 

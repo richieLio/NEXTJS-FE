@@ -4,7 +4,6 @@ import Image from "next/image";
 import { register } from "../api/user"; // Adjust the import path as needed
 import { toast } from "react-toastify";
 import { UserContext } from "../../components/UserContext";
-import googleImg from "../../asset/google_logo_icon.png";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -219,7 +218,7 @@ export default function Register() {
       </div>
 
       <button className="py-2 w-full rounded-xl mt-5 flex justify-center text-sm">
-        <Image className="w-6 mr-3" src={googleImg} alt="google logo" />
+        <img className="w-6 mr-3" src="asset/google_logo_icon.png" alt="google logo" />
         Register with Google
       </button>
 
