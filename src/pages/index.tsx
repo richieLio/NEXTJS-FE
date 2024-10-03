@@ -7,21 +7,47 @@ import {
   FaFutbol,
 } from "react-icons/fa";
 import { Canvas } from "@react-three/fiber";
-import { useGLTF, OrbitControls, Environment, PerspectiveCamera } from "@react-three/drei";
+import { useGLTF, OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from 'three';
+import React, { useRef, useEffect } from "react";
 
 function Model({ url }: { url: string }) {
   const { scene } = useGLTF(url, true);
+  const modelRef = useRef<THREE.Group>();
 
   // Tính toán kích thước của mô hình để điều chỉnh tỷ lệ cho phù hợp
   const box = new THREE.Box3().setFromObject(scene);
   const size = box.getSize(new THREE.Vector3()).length();
   scene.scale.set(1.5, 1.5, 1.5); // Tăng kích thước mô hình lên 50%
 
+  useEffect(() => {
+    if (modelRef.current) {
+      modelRef.current.rotation.y = 0;
+      modelRef.current.rotation.x = Math.PI / 9; // Thêm góc nhìn từ trên xuống
+    }
+  }, []);
+
+  useEffect(() => {
+    let animationId: number;
+
+    const animate = () => {
+      if (modelRef.current) {
+        modelRef.current.rotation.y += 0.01;
+      }
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
   return (
     <>
-      <primitive object={scene} />
-      <PerspectiveCamera makeDefault position={[0, 0, size * 1.5]} />
+      <primitive object={scene} ref={modelRef} />
+      <PerspectiveCamera makeDefault position={[0, size*0.5, size*1.1]} />
     </>
   );
 }
@@ -66,7 +92,7 @@ export default function Home() {
             </motion.button>
           </div>
           <motion.div
-            className="w-1/2 h-[400px]"
+            className="w-2/3 h-[400px]"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
@@ -74,8 +100,8 @@ export default function Home() {
             <Canvas>
               <ambientLight intensity={0.5} />
               <directionalLight position={[10, 10, 5]} intensity={1} />
-              <Model url="/glb/t-shirt.glb" />
-              <OrbitControls />
+              <Model url="/glb/basketball_court.glb" />
+              <OrbitControls autoRotate autoRotateSpeed={1} />
             </Canvas>
           </motion.div>
         </motion.section>
