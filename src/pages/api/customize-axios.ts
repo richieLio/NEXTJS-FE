@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'https://localhost:7183/api',
+  baseURL: 'http://localhost:5139/api',
 });
 
 // Define an interface for the error response object
