@@ -48,9 +48,9 @@ const register = async (
   }
 };
 
- const emailVerify = async (otp: string, email: string) => {
+ const emailVerify = async (otpCode: string, email: string) => {
   try {
-    const response = await axiosInstance.post("/user/verify-email", { otp, email });
+    const response = await axiosInstance.post("/user/verify-email", { otpCode, email });
     return response;
   } catch (error) {
     const res: ErrorResponse = {};

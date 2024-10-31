@@ -18,7 +18,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <main className="flex-1">
               <Component {...pageProps} />
             </main>
-            <Footer />
+            {/* <Footer /> */}
           </div>
           <ToastContainer
             position="top-right"
