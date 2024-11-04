@@ -7,22 +7,20 @@ interface ErrorResponse {
   status?: number;
   headers?: any;
 }
+interface CalculatePriceDTO {
+    timeSlotId: string;
+    voucherCode: string;
+}
 
 const isAxiosError = (error: any): error is AxiosError => {
   return error.isAxiosError;
 };
 
-const createBooking = (timeSlotId: string, fieldId: string) => {
-  return axiosInstance.post(`/booking/create-booking/`, {
-    timeSlotId,
-    fieldId
-  });
-};
-const bookingHistory = (userId: string) => {
-  return axiosInstance.get(`/booking/user-booking-history/${userId}`);
+const applyVoucher = (calculatePriceDTO: CalculatePriceDTO) => {
+  return axiosInstance.post(`/Voucher/apply/`, calculatePriceDTO);
 };
 
 export {
-    createBooking,
-    bookingHistory
+    applyVoucher,
+   
 };

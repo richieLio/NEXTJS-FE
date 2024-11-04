@@ -5,6 +5,8 @@ import { getAllTimeSlot } from '@/pages/api/timeslot';
 import { getPriceByTimeSlotId } from '@/pages/api/pricing';
 import { createBooking } from '@/pages/api/booking';
 import { sendMoMoPayment } from '@/pages/api/payment'
+import { getPaymentStatus } from '@/pages/api/payment';
+import { applyVoucher } from '@/pages/api/voucher';
 interface SportField {
   id: string;
   facilityId: string;
@@ -18,7 +20,10 @@ interface TimeSlot {
   endTime: string;
   isAvailable: boolean;
 }
-
+interface CalculatePriceDTO {
+  timeSlotId: string;
+  voucherCode: string;
+}
 const FacilityPage = () => {
   const [fields, setFields] = useState<SportField[]>([]);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
@@ -26,8 +31,16 @@ const FacilityPage = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(null);
   const [occupancyRates, setOccupancyRates] = useState<{[key: string]: number}>({});
   const [prices, setPrices] = useState<{[key: string]: number}>({});
+  const [voucherCode, setVoucherCode] = useState<string>('');
   const router = useRouter();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
   const { facilityId } = router.query;
+
+  useEffect(() => {
+    const today = new Date();
+    setSelectedDate(today);
+  }, []);
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -37,8 +50,9 @@ const FacilityPage = () => {
           setFields(response.data);
           
           // Fetch occupancy rates for all fields
-          response.data.forEach(async (field) => {
-            const timeSlotResponse = await getAllTimeSlot(field.id);
+          response.data.forEach(async (field: SportField) => {
+            const formattedDate = selectedDate.toISOString().split('T')[0];
+            const timeSlotResponse = await getAllTimeSlot(field.id, formattedDate);
             const totalSlots = timeSlotResponse.data.length;
             const bookedSlots = timeSlotResponse.data.filter((slot: TimeSlot) => slot.isAvailable).length;
             const occupancyRate = Math.round((bookedSlots / totalSlots) * 100);
@@ -54,13 +68,18 @@ const FacilityPage = () => {
     };
 
     fetchFields();
-  }, [facilityId]);
+  }, [facilityId, selectedDate]);
 
+
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+  };
   useEffect(() => {
     const fetchTimeSlots = async () => {
       if (selectedField) {
         try {
-          const response = await getAllTimeSlot(selectedField);
+          const formattedDate = selectedDate.toISOString().split('T')[0];
+          const response = await getAllTimeSlot(selectedField, formattedDate);
           setTimeSlots(response.data);
           setSelectedTimeSlot(null);
           
@@ -88,15 +107,27 @@ const FacilityPage = () => {
   const handleTimeSlotClick = (slot: TimeSlot) => {
     setSelectedTimeSlot(slot);
   };
-
+  
   const handleBooking = async (timeSlotId: string, fieldId: string) => {
     try {
       const response = await createBooking(timeSlotId, fieldId);
       console.log(response.data)
       if (response.data) {
-        // Get booking ID and price from response
+        // Get booking ID and calculate price with voucher
         const bookingId = response.data.id;
-        const amount = prices[timeSlotId];
+        let amount = prices[timeSlotId];
+
+        // Apply voucher if provided
+        if (voucherCode) {
+          const calculatePriceDTO: CalculatePriceDTO = {
+            timeSlotId: timeSlotId,
+            voucherCode: voucherCode
+          };
+          const voucherResponse = await applyVoucher(calculatePriceDTO);
+          if (voucherResponse.data) {
+            amount = voucherResponse.data.price;
+          }
+        }
 
         // Process MoMo payment
         const paymentResponse = await sendMoMoPayment(bookingId, amount);
@@ -105,19 +136,33 @@ const FacilityPage = () => {
           const confirmPayment = window.confirm('Bạn có muốn chuyển đến trang thanh toán không?');
           if (confirmPayment) {
             window.open(paymentResponse.data.url, '_blank');
+            
+            // Check payment status every 5 seconds
+            const { orderId, requestId } = paymentResponse.data;
+            const checkPaymentInterval = setInterval(async () => {
+              const paymentStatus = await getPaymentStatus(orderId, requestId, bookingId, amount);
+              console.log('Payment status:', paymentStatus);
+              if (paymentStatus.code === 200) {
+                clearInterval(checkPaymentInterval);
+                alert('Thanh toán thành công!');
+                
+                // Refresh time slots after successful payment
+                const formattedDate = selectedDate.toISOString().split('T')[0];
+                const timeSlotResponse = await getAllTimeSlot(fieldId, formattedDate);
+                setTimeSlots(timeSlotResponse.data);
+                setSelectedTimeSlot(null);
+                
+                // Update occupancy rate
+                const totalSlots = timeSlotResponse.data.length;
+                const bookedSlots = timeSlotResponse.data.filter(slot => slot.isAvailable).length;
+                const occupancyRate = Math.round((bookedSlots / totalSlots) * 100);
+                setOccupancyRates(prev => ({
+                  ...prev,
+                  [fieldId]: occupancyRate
+                }));
+              }
+            }, 10000);
           }
-          // Refresh time slots after successful booking
-          const timeSlotResponse = await getAllTimeSlot(fieldId);
-          setTimeSlots(timeSlotResponse.data);
-          setSelectedTimeSlot(null);
-          // Update occupancy rate
-          const totalSlots = timeSlotResponse.data.length;
-          const bookedSlots = timeSlotResponse.data.filter(slot => slot.isAvailable).length;
-          const occupancyRate = Math.round((bookedSlots / totalSlots) * 100);
-          setOccupancyRates(prev => ({
-            ...prev,
-            [fieldId]: occupancyRate
-          }));
         } else {
           alert('Payment failed. Please try again.');
         }
@@ -128,47 +173,71 @@ const FacilityPage = () => {
     }
   };
   return (
-    <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
+    <div className="container mx-auto p-8 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
       <div className="flex gap-12">
         <div className="w-1/2 pr-6">
           <h2 className="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Available Fields</h2>
-          <div className="grid gap-6">
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2">Select Date</label>
+            <input
+              type="date"
+              value={selectedDate.toISOString().split('T')[0]}
+              onChange={(e) => {
+                const newDate = new Date(e.target.value);
+                setSelectedDate(newDate);
+              }}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {fields.map((field, index) => (
               <div 
                 key={field.id} 
-                className={`relative overflow-hidden rounded-xl shadow-lg cursor-pointer transition-all duration-500 ${
-                  selectedField === field.id ? 'ring-4 ring-blue-400 scale-105' : ''
+                className={`relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer transition-all duration-500 hover:shadow-xl transform hover:-translate-y-2 ${
+                  selectedField === field.id ? 'ring-4 ring-blue-500 scale-105' : ''
                 }`}
-                style={{ 
-                  animationDelay: `${index * 0.1}s`,
-                  background: `linear-gradient(135deg, ${
-                    occupancyRates[field.id] > 80 ? '#ef4444' :
-                    occupancyRates[field.id] > 50 ? '#f59e0b' :
-                    occupancyRates[field.id] >= 0 ? '#22c55e' : '#ffffff'
-                  }22, white)`
-                }}
                 onClick={() => handleFieldClick(field.id)}
               >
-                <div className="p-6 backdrop-blur-sm">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-3">{field.name}</h3>
-                  {occupancyRates[field.id] !== undefined && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center text-sm text-gray-600">
-                        <span>Occupancy</span>
-                        <span className="font-semibold">{occupancyRates[field.id]}%</span>
-                      </div>
-                      <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full transition-all duration-1000 ${
-                            occupancyRates[field.id] > 80 ? 'bg-red-500' :
-                            occupancyRates[field.id] > 50 ? 'bg-amber-500' :
-                            'bg-green-500'
-                          }`}
-                          style={{ width: `${occupancyRates[field.id]}%` }}
-                        ></div>
-                      </div>
+                <div className="p-4 relative h-56 w-full bg-gradient-to-br from-emerald-100 to-sky-100">
+                  <div className="absolute inset-0 border-2 border-indigo-600 rounded-xl m-2" style={{
+                    clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)'
+                  }}>
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-md"></div>
+                    
+                    <div 
+                      className="absolute bottom-0 w-full transition-all duration-1000 ease-in-out"
+                      style={{
+                        height: `${occupancyRates[field.id]}%`,
+                        background: `linear-gradient(135deg, ${
+                          occupancyRates[field.id] > 80 ? 'rgba(239, 68, 68, 0.8)' :
+                          occupancyRates[field.id] > 50 ? 'rgba(245, 158, 11, 0.8)' : 'rgba(34, 197, 94, 0.8)'
+                        }, ${
+                          occupancyRates[field.id] > 80 ? 'rgba(239, 68, 68, 0.6)' :
+                          occupancyRates[field.id] > 50 ? 'rgba(245, 158, 11, 0.6)' : 'rgba(34, 197, 94, 0.6)'
+                        })`,
+                        animation: 'waveAnimation 3s infinite ease-in-out',
+                        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+                      }}
+                    >
+                      <style jsx>{`
+                        @keyframes waveAnimation {
+                          0%, 100% { transform: translateY(0) scale(1); }
+                          50% { transform: translateY(-8px) scale(1.02); }
+                        }
+                      `}</style>
                     </div>
-                  )}
+                  </div>
+                  
+                  <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-3 text-center bg-white/70 px-4 py-2 rounded-lg backdrop-blur-sm shadow-lg">{field.name}</h3>
+                    {occupancyRates[field.id] !== undefined && (
+                      <div className="bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-md">
+                        <span className="font-semibold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                          {occupancyRates[field.id]}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -234,6 +303,15 @@ const FacilityPage = () => {
                       }`}>
                         {!selectedTimeSlot.isAvailable ? 'Available' : 'Not Available'}
                       </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        placeholder="Enter voucher code"
+                        value={voucherCode}
+                        onChange={(e) => setVoucherCode(e.target.value)}
+                        className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                      />
                     </div>
                   </div>
                 </div>

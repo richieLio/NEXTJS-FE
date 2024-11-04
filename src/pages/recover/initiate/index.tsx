@@ -21,7 +21,7 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
-      const response = await sendOtp(email as string);
+      const response = await sendOtp(email);
       if (response.code === 200) {
         toast.success("An OTP has been send to your email!");
         router.push({

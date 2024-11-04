@@ -12,9 +12,21 @@ const Facility = () => {
   const [total, setTotal] = React.useState<number>(0);
   const [totalPages, setTotalPages] = React.useState<number>(0);
   const [currentPage, setCurrentPage] = React.useState<number>(0);
+  const [provinces, setProvinces] = React.useState<any[]>([]);
+  const [selectedProvince, setSelectedProvince] = React.useState<string>("");
   const router = useRouter();
   const context = useContext(UserContext);
   const user = context;
+
+  const getProvinces = async () => {
+    try {
+      const response = await fetch('https://provinces.open-api.vn/api/');
+      const data = await response.json();
+      setProvinces(data);
+    } catch (err) {
+      console.error('Failed to fetch provinces:', err);
+    }
+  };
 
   const getFacilites = async (page: number) => {
     console.log('Fetching facilities for page:', page);
@@ -24,10 +36,15 @@ const Facility = () => {
       const res = await getAllFacility(page, user?.userId);
       if (res && res.data) {
         console.log('Total Pages:', res.data.totalPage);
-
+        let filteredData = res.data.listData;
+        if (selectedProvince) {
+          filteredData = filteredData.filter((facility: any) => 
+            facility.location.includes(selectedProvince)
+          );
+        }
         setTotal(res.data.totalRecords);
         setTotalPages(res.data.totalPage);
-        setFacilities(res.data.listData);
+        setFacilities(filteredData);
         setCurrentPage(page - 1);
       }
     } catch (err) {
@@ -39,8 +56,13 @@ const Facility = () => {
   };
 
   useEffect(() => {
+    getProvinces();
     getFacilites(1);
   }, []);
+
+  useEffect(() => {
+    getFacilites(1);
+  }, [selectedProvince]);
 
   const handlePageClick = (event: { selected: number }) => {
     console.log('Selected page:', event.selected + 1);
@@ -65,7 +87,21 @@ const Facility = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Facilities</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Facilities</h1>
+        <select 
+          className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={selectedProvince}
+          onChange={(e) => setSelectedProvince(e.target.value)}
+        >
+          <option value="">All Provinces</option>
+          {provinces.map((province) => (
+            <option key={province.code} value={province.name}>
+              {province.name}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {facilities.map((facility, index) => (
           <div key={index} className="bg-white rounded-lg shadow-md p-6 transform transition duration-300 hover:scale-105 hover:shadow-xl">
@@ -125,7 +161,6 @@ const Facility = () => {
                 activeClassName="bg-blue-600 text-white hover:bg-blue-700 rounded-lg"
                 marginPagesDisplayed={2}
               />        </div>
-
     </div>
   );
 };

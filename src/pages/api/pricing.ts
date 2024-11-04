@@ -8,15 +8,17 @@ interface ErrorResponse {
   headers?: any;
 }
 
-interface FieldPricingRequestDTO {
+interface CreateDTO {
+  dayOfWeek: string;
+  price: number;
+  timeSlotId: string;
+}
+interface UpdateDTO {
   id: string;
-  data: any;
+  dayOfWeek: string;
+  price: number;
 }
 
-interface UpdateFieldPricingDto {
-  id: string;
-  data: any;
-}
 
 const isAxiosError = (error: any): error is AxiosError => {
   return error.isAxiosError;
@@ -27,9 +29,18 @@ const getAllPricing = (fieldId: string) => {
 };
 const getPriceByTimeSlotId = (timeSlotId: string) => {
     return axiosInstance.get(`/fieldpricing/timeslot/${timeSlotId}`);
+};
+const createPricing = (createDTO: CreateDTO) => {
+    return axiosInstance.post(`/fieldpricing/`, createDTO);
+  };
+
+  const updatePricing = (updateDTO: UpdateDTO) => {
+    return axiosInstance.put(`/fieldpricing/update`, updateDTO);
   };
 
 export {
     getAllPricing,
-    getPriceByTimeSlotId
+    getPriceByTimeSlotId,
+    createPricing,
+    updatePricing
 };

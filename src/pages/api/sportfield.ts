@@ -8,14 +8,14 @@ interface ErrorResponse {
   headers?: any;
 }
 
-interface FieldPricingRequestDTO {
-  id: string;
-  data: any;
+interface FieldRequestDTO {
+  facilityId: string;
+  name: string;
 }
 
-interface UpdateFieldPricingDto {
-  id: string;
-  data: any;
+interface FieldUpdateRequestDTO {
+  fieldId: string;
+  name: any;
 }
 
 const isAxiosError = (error: any): error is AxiosError => {
@@ -25,7 +25,16 @@ const isAxiosError = (error: any): error is AxiosError => {
 const getAllField = (facilityId: string) => {
   return axiosInstance.get(`/field?facilityId=${facilityId}`);
 };
+const createField = (fieldRequestDTO: FieldRequestDTO) => {
+  return axiosInstance.post("/field", fieldRequestDTO);
+};
+const updateField = (fieldUpdateRequestDTO: FieldUpdateRequestDTO) => {
+  return axiosInstance.put("/field", fieldUpdateRequestDTO);
+};
+
 
 export {
-  getAllField
+  getAllField,
+  createField,
+  updateField
 };

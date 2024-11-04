@@ -5,6 +5,7 @@ interface User {
   email: string;
   userId: string;
   fullName: string;
+  role: string;
   auth: boolean;
 }
 
@@ -21,6 +22,7 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     email: "",
     userId: "",
     fullName: "",
+    role: "",
     auth: false,
   });
 
@@ -32,6 +34,7 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         email: decoded.email,
         userId: decoded.userid,
         fullName: decoded.fullname,
+        role: decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
         auth: true,
       });
     }
@@ -43,10 +46,12 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       email: decoded.email,
       userId: decoded.userid,
       fullName: decoded.fullname,
+      role: decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
       auth: true,
     });
     localStorage.setItem("token", token);
     localStorage.setItem("email", email);
+    localStorage.setItem("role", decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]);
   };
 
   const logout = () => {
@@ -56,6 +61,7 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       email: "",
       userId: "",
       fullName: "",
+      role: "",
       auth: false,
     });
   };

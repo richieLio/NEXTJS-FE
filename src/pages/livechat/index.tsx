@@ -15,7 +15,7 @@ const Provinces: React.FC = () => {
   const router = useRouter();
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [selectedProvince, setSelectedProvince] = useState<string>("");
-  const [name, setName] = useState<string>(localStorage.getItem('userName') || '');
+  const [name, setName] = useState<string>('');
 
   useEffect(() => {
     fetch("https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json")
@@ -48,8 +48,7 @@ const Provinces: React.FC = () => {
 
   const handleNameChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const newName = event.target.value;
-    setName(newName);
-    localStorage.setItem('userName', newName);
+    setName("Hoang Huy");
   };
 
   const handleStartChat = (): void => {

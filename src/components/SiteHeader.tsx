@@ -133,7 +133,7 @@ export default function Navibar() {
                 <DropdownItem as={Link} href="/profile">
                   Profile
                 </DropdownItem>
-                <DropdownItem key="team_settings">Team Settings</DropdownItem>
+                <DropdownItem as={Link} href="/history">Booking History</DropdownItem>
                 <DropdownItem key="analytics">Analytics</DropdownItem>
                 <DropdownItem key="system">System</DropdownItem>
                 <DropdownItem key="configurations">Configurations</DropdownItem>

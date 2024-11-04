@@ -10,18 +10,15 @@ interface ErrorResponse {
 
 interface FacilityRequestDTO {
   name: string;
-  description: string;
-  status: string;
   location?: string;
   contactInfo?: string;
   type?: string;
 }
 
+
 interface UpdateFacilityDto {
   id: string;
   name: string;
-  description: string;
-  status: string;
   location?: string;
   contactInfo?: string;
   type?: string;
@@ -34,27 +31,21 @@ const isAxiosError = (error: any): error is AxiosError => {
 const getAllFacility = (page: number, userId: string) => {
   return axiosInstance.get(`/facility?page=${page}`);
 };
-
-const getFacilityById = (facilityId: string) => {
-  return axiosInstance.get(`/facility/${facilityId}`);
+const getAllFacilityManage = (page: number, userId: string) => {
+  return axiosInstance.get(`/facility/manage?page=${page}`);
 };
 
 const createFacility = (facilityRequestDTO: FacilityRequestDTO) => {
   return axiosInstance.post("/facility", facilityRequestDTO);
 };
 
-const deleteFacility = (facilityId: string) => {
-  return axiosInstance.put(`/delete/${facilityId}`);
-};
-
-const updateFacility = (facilityId: string, updateModel: UpdateFacilityDto) => {
-  return axiosInstance.put(`/facility/update?facilityId=${facilityId}`, updateModel);
+const updateFacility = (updateModel: UpdateFacilityDto) => {
+  return axiosInstance.put(`/facility/update`, updateModel);
 };
 
 export {
   getAllFacility,
-  getFacilityById,
   createFacility,
-  deleteFacility,
   updateFacility,
+  getAllFacilityManage
 };

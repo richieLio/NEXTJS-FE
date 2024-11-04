@@ -19,7 +19,16 @@ const sendMoMoPayment = (bookingId: string, amount: number) => {
       amount
   });
 };
+const getPaymentStatus = (orderId: string, requestId: string, BookingId: string, Amount: number ) => {
+  return axiosInstance.post(`/payment/check-transaction/`, {
+      orderId,
+      requestId,
+      BookingId,
+      Amount
+  });
+};
 
 export {
     sendMoMoPayment,
+    getPaymentStatus
 };

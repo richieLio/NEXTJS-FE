@@ -7,29 +7,49 @@ interface ErrorResponse {
   status?: number;
   headers?: any;
 }
-
-interface FieldPricingRequestDTO {
-  id: string;
-  data: any;
+interface CreateForm {
+  fieldId: string;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
 }
 
-interface UpdateFieldPricingDto {
+interface UpdateForm {
   id: string;
-  data: any;
+  startTime: any;
+  endTime: string;
 }
 
 const isAxiosError = (error: any): error is AxiosError => {
   return error.isAxiosError;
 };
 
-const getAllTimeSlot = (fieldId: string) => {
-  return axiosInstance.get(`/timeslot/${fieldId}`);
+const getAllTimeSlot = (fieldId: string, dateTime: string) => {
+  return axiosInstance.get(`/timeslot/${fieldId}?dateTime=${dateTime}`);
+};
+const getAllTimeSlotManage = (fieldId: string) => {
+  return axiosInstance.get(`/timeslot/partner/${fieldId}`);
 };
 const getPriceByTimeSlotId = (timeSlotId: string) => {
   return axiosInstance.get(`/fieldpricing/timeslot/${timeSlotId}`);
 };
+const updateTimeslot = (updateForm: UpdateForm) => {
+  return axiosInstance.put(`/timeslot/`, updateForm);
+}
+const createTimeslot = (createForm: CreateForm) => {
+  return axiosInstance.post(`/timeslot/`, createForm);
+
+}
+const getPricingForTimeslot = (timeslotId : string) => {
+  return axiosInstance.get(`/timeslot/price/${timeslotId}`);
+
+}
 
 export {
     getAllTimeSlot,
-    getPriceByTimeSlotId
+    getPriceByTimeSlotId,
+    createTimeslot,
+    updateTimeslot,
+    getPricingForTimeslot,
+    getAllTimeSlotManage
 };

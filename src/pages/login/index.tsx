@@ -76,8 +76,11 @@ export default function Login() {
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (user && user.userId) {
+    if (user && user.role === "CUSTOMER") {
       router.push("/");
+    }
+    if (user && user.role === "PARTNER") {
+      router.push("/partner");
     }
   }, [user, router]);
 

@@ -98,7 +98,7 @@ const avtChat = async (userId: string) => {
 
 const sendOtp = async (email: string) => {
   try {
-    const response = await axiosInstance.post("/verify/send-otp", { email });
+    const response = await axiosInstance.post("/user/send-otp", { email });
     return response;
   } catch (error) {
     const res: ErrorResponse = {};
@@ -114,7 +114,7 @@ const sendOtp = async (email: string) => {
 
 const verifyOtp = async (email: string, otp: string) => {
   try {
-    const response = await axiosInstance.post("/verify/verify-otp", {
+    const response = await axiosInstance.post("/user/verify-reset-password", {
       email,
       OTPCode: otp,
     });
