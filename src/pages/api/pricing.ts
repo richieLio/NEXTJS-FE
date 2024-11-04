@@ -9,13 +9,11 @@ interface ErrorResponse {
 }
 
 interface CreateDTO {
-  dayOfWeek: string;
   price: number;
   timeSlotId: string;
 }
 interface UpdateDTO {
-  id: string;
-  dayOfWeek: string;
+  timeslotId: string;
   price: number;
 }
 

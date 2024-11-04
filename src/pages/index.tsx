@@ -16,6 +16,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import React, { useEffect, useState } from "react";
 import Model from "@/components/ui/models-glb";
+import Link from "next/link";
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
@@ -76,8 +77,10 @@ export default function Home() {
               whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgb(59, 130, 246)" }}
               whileTap={{ scale: 0.95 }}
             >
-              <FaCalendarCheck className="mr-2" /> Đặt sân ngay
-            </motion.button>
+           <Link href="/facility" className="flex items-center">
+            <FaCalendarCheck className="mr-2" /> Đặt sân ngay
+          </Link>          
+          </motion.button>        
           </motion.div>
           {!isMobile && (
             <motion.div
