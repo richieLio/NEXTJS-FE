@@ -8,6 +8,7 @@ import {
   updateTimeslot
 } from "@/pages/api/timeslot";
 import { createPricing, updatePricing } from "@/pages/api/pricing";
+import Breadcrumb from "@/components/Breadcrumb";
 
 interface CreateForm {
   fieldId: string;
@@ -195,6 +196,7 @@ const TimeSlots = () => {
   return (
     <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg">
       <div className="mb-6 flex justify-between items-center">
+      <Breadcrumb />
         <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
           <span className="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

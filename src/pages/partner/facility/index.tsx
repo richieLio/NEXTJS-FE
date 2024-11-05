@@ -4,7 +4,7 @@ import { UserContext } from "@/components/UserContext";
 import React, { useState, useEffect, useContext } from "react";
 import ReactPaginate from 'react-paginate';
 import {createFacility, updateFacility, getAllFacilityManage } from "@/pages/api/facility";
-
+import Breadcrumb from "@/components/Breadcrumb";
 interface FacilityRequestDTO {
   name: string;
   location?: string;
@@ -44,8 +44,7 @@ const Facility = () => {
   const facilityTypes = ['Football', 'Basketball', 'Tennis', 'Swimming', 'Volleyball', 'Badminton'];
 
   const getFacilites = async (page: number) => {
-    console.log('Fetching facilities for page:', page);
-
+    
     try {
       setLoading(true);
       const res = await getAllFacilityManage(page, user?.user?.id);
@@ -196,8 +195,11 @@ const Facility = () => {
   }
 
   return (
+    
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
+
+      <Breadcrumb />
         <h1 className="text-2xl font-bold text-gray-800">Facilities</h1>
         <button 
           onClick={handleOpenCreateModal}
