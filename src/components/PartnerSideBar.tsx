@@ -21,10 +21,10 @@ export default function PartnerSidebar() {
         if (response.data?.status === 200) {
           setAvt(response.data.avatarUrl);
         } else {
-          toast.error("Failed to fetch user profile");
+         // toast.error("Failed to fetch user profile");
         }
       } catch (error) {
-        toast.error("An error occurred during fetch user profile");
+        //toast.error("An error occurred during fetch user profile");
       }
     };
     fetchUserProfile();
@@ -38,8 +38,8 @@ export default function PartnerSidebar() {
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
-    logout();
     router.push("/");
+    logout();
     toast.success("Logout success");
   };
 
@@ -108,7 +108,6 @@ export default function PartnerSidebar() {
               </div>
             )}
           </div>
-          <ThemeSwitcher />
         </div>
       </div>
     </div>

@@ -31,7 +31,7 @@ const isAxiosError = (error: any): error is AxiosError => {
 const getAllFacility = (page: number, userId: string) => {
   return axiosInstance.get(`/facility?page=${page}`);
 };
-const getAllFacilityManage = (page: number, userId: string) => {
+const getAllFacilityManage = (page: number) => {
   return axiosInstance.get(`/facility/manage?page=${page}`);
 };
 
@@ -42,10 +42,14 @@ const createFacility = (facilityRequestDTO: FacilityRequestDTO) => {
 const updateFacility = (updateModel: UpdateFacilityDto) => {
   return axiosInstance.put(`/facility/update`, updateModel);
 };
+const getFacilityById = (id: string) => {
+  return axiosInstance.get(`/facility/${id}`);
+};
 
 export {
   getAllFacility,
   createFacility,
   updateFacility,
-  getAllFacilityManage
+  getAllFacilityManage,
+  getFacilityById
 };

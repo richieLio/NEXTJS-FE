@@ -21,8 +21,13 @@ const createBooking = (timeSlotId: string, fieldId: string) => {
 const bookingHistory = (userId: string) => {
   return axiosInstance.get(`/booking/user-booking-history/${userId}`);
 };
+const bookingManage = (facilityId: string, page: number) => {
+  return axiosInstance.get(`/booking/manage?facilityId=${facilityId}&page=${page}`);
+};
+
 
 export {
     createBooking,
-    bookingHistory
+    bookingHistory,
+    bookingManage
 };

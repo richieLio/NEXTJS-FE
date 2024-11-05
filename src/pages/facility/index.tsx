@@ -107,7 +107,7 @@ const Facility = () => {
           <div key={index} className="bg-white rounded-lg shadow-md p-6 transform transition duration-300 hover:scale-105 hover:shadow-xl">
             <div className="relative mb-4 overflow-hidden rounded-lg">
               <img 
-                src={`https://placehold.co/600x400/e2e8f0/1e40af?text=${facility.name}`}
+                src={facility.images && facility.images.length > 0 ? facility.images[0] : `https://placehold.co/600x400/e2e8f0/1e40af?text=${facility.name}`}
                 alt={facility.name}
                 className="w-full h-48 object-cover transition-transform duration-300 hover:scale-110"
               />
@@ -123,11 +123,11 @@ const Facility = () => {
                 <button 
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
                   onClick={() => router.push({
-                    pathname: '/facility/[facilityId]',
+                    pathname: '/facility/[facilityId]/booking',
                     query: { facilityId: facility.id }
                   })}
                 >
-                  View Details
+                  Go to Booking
                 </button>
               </div>
             </div>

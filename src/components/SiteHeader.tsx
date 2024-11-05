@@ -36,7 +36,7 @@ export default function Navibar() {
         if (response.code === 200) {
           setAvt(response.data.avatarUrl);
         } else {
-          toast.error("Failed to fetch user profile");
+         // toast.error("Failed to fetch user profile");
         }
       } catch (error) {
         toast.error("An error occurred during fetch user profile");

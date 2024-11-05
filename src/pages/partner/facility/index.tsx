@@ -47,7 +47,7 @@ const Facility = () => {
     
     try {
       setLoading(true);
-      const res = await getAllFacilityManage(page, user?.user?.id);
+      const res = await getAllFacilityManage(page);
       if (res && res.data) {
         console.log('Total Pages:', res.data.totalPage);
 
